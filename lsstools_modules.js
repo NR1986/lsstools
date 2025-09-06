@@ -233,7 +233,7 @@
     };
 
     const main = () => {
-        log('LSSTools Modules geladen (localStorage Version)!');
+        log('LSSTools Modules geladen (${CONFIG.version})!');
         addCustomPopupLink();
     };
 
