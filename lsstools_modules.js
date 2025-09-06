@@ -1,10 +1,10 @@
-// LSSTools Modules v1.3 – komplett localStorage, Appstore fix
+// LSSTools Modules v1.4 – komplett lokalStorage, Appstore fix
 (function() {
     'use strict';
 
     const CONFIG = {
         debug: true,
-        version: 'v1.3',
+        version: 'v1.4',
         modules: {}
     };
 
@@ -159,3 +159,88 @@
 
         Object.keys(CONFIG.modules).forEach(modName => {
             const enabled = localStorage.getItem(`module_${modName}`);
+            const isEnabled = enabled === null ? true : enabled === 'true';
+            if (isEnabled) {
+                const tab = document.createElement('div');
+                tab.textContent = modName;
+                tab.style.padding = '5px 10px';
+                tab.style.cursor = 'pointer';
+                tab.addEventListener('click', () => renderModule(modName));
+                tabsContainer.appendChild(tab);
+            }
+        });
+
+        renderAppstore();
+    };
+
+    const renderAppstore = () => {
+        const content = document.getElementById('lsstools-popup-content');
+        content.innerHTML = '<h4>Appstore</h4><p>Aktiviere oder deaktiviere Module:</p>';
+
+        Object.keys(CONFIG.modules).forEach(modName => {
+            const label = document.createElement('label');
+            label.style.display = 'block';
+            label.style.marginBottom = '3px';
+
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            const enabled = localStorage.getItem(`module_${modName}`);
+            checkbox.checked = enabled === null ? true : enabled === 'true';
+
+            checkbox.addEventListener('change', e => {
+                localStorage.setItem(`module_${modName}`, e.target.checked);
+                renderTabsAndContent();
+            });
+
+            label.appendChild(checkbox);
+            label.appendChild(document.createTextNode(' ' + modName));
+            content.appendChild(label);
+        });
+    };
+
+    const renderModule = (modName) => {
+        const content = document.getElementById('lsstools-popup-content');
+        content.innerHTML = `<h4>${modName}</h4>`;
+        CONFIG.modules[modName](content);
+    };
+
+    /********** Link neben Täglicher Login **********/
+    const addCustomPopupLink = () => {
+        const observer = new MutationObserver((mutations, obs) => {
+            const loginLi = document.getElementById('daily-bonus');
+            if (loginLi && !document.getElementById('lsstools-custom-li')) {
+                const customLi = document.createElement('li');
+                customLi.id = 'lsstools-custom-li';
+                customLi.style.display = 'inline-block';
+                customLi.style.marginRight = '5px';
+
+                const customA = document.createElement('a');
+                customA.href = '#';
+                customA.className = 'lsstools-link';
+                customA.style.color = '#ffffff';
+                customA.style.textDecoration = 'none';
+                customA.innerHTML = `<span class="glyphicon glyphicon-wrench" style="margin-right:2px;"></span><span>LSSTools</span>`;
+                customA.addEventListener('mouseenter', () => { customA.style.color = '#000000'; });
+                customA.addEventListener('mouseleave', () => { customA.style.color = '#ffffff'; });
+                customA.addEventListener('click', e => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    showLSSToolsLightbox();
+                });
+
+                customLi.appendChild(customA);
+                loginLi.parentNode.insertBefore(customLi, loginLi);
+                obs.disconnect();
+            }
+        });
+        observer.observe(document.body, { childList: true, subtree: true });
+    };
+
+    const main = () => {
+        log('LSSTools Modules geladen (localStorage Version)');
+        addCustomPopupLink();
+    };
+
+    window.addEventListener('load', main);
+
+})();
