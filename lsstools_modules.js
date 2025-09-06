@@ -1,10 +1,10 @@
-// LSSTools Modules v1.1 – lokalStorage statt GM_Storage
+// LSSTools Modules v1.2 – komplett localStorage
 (function() {
     'use strict';
 
     const CONFIG = {
         debug: true,
-        version: 'v1.1',
+        version: 'v1.2',
         modules: {}
     };
 
@@ -28,7 +28,7 @@
     CONFIG.modules['Aktuelle Einsätze'] = (container) => {
         const list = document.createElement('div');
         list.innerHTML = '<strong>Aktuelle Einsätze:</strong>';
-        const missions = document.querySelectorAll('.mission');
+        const missions = document.querySelectorAll('.mission'); // Beispiel: Einsätze auf der Seite
         if (missions.length === 0) list.innerHTML += '<br>Keine Einsätze gefunden.';
         else {
             const ul = document.createElement('ul');
@@ -41,7 +41,7 @@
     CONFIG.modules['Krankenhaus'] = (container) => {
         const box = document.createElement('div');
         box.innerHTML = '<strong>Krankenhaus-Status:</strong>';
-        const patients = document.querySelectorAll('#hospital .patient'); 
+        const patients = document.querySelectorAll('#hospital .patient');
         box.innerHTML += `<br>Patienten: ${patients.length}`;
         container.appendChild(box);
     };
