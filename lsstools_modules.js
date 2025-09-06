@@ -1,17 +1,16 @@
-// LSSTools Modules v1.0
+// LSSTools Modules v1.1 – lokalStorage statt GM_Storage
 (function() {
     'use strict';
 
     const CONFIG = {
         debug: true,
-        version: 'v1.0',
+        version: 'v1.1',
         modules: {}
     };
 
     const log = (...args) => CONFIG.debug && console.log('[LSSTools]', ...args);
 
     /********** MODULE **********/
-    // Mission Timer
     CONFIG.modules['Mission Timer'] = (container) => {
         const timerBox = document.createElement('div');
         timerBox.textContent = 'Mission Timer: 00:00';
@@ -26,26 +25,19 @@
         }, 1000);
     };
 
-    // Aktuelle Einsätze
     CONFIG.modules['Aktuelle Einsätze'] = (container) => {
         const list = document.createElement('div');
         list.innerHTML = '<strong>Aktuelle Einsätze:</strong>';
-        const missions = document.querySelectorAll('.mission'); // Beispiel: Einsätze
-        if (missions.length === 0) {
-            list.innerHTML += '<br>Keine Einsätze gefunden.';
-        } else {
+        const missions = document.querySelectorAll('.mission');
+        if (missions.length === 0) list.innerHTML += '<br>Keine Einsätze gefunden.';
+        else {
             const ul = document.createElement('ul');
-            missions.forEach(m => {
-                const li = document.createElement('li');
-                li.textContent = m.textContent.trim();
-                ul.appendChild(li);
-            });
+            missions.forEach(m => { const li = document.createElement('li'); li.textContent = m.textContent.trim(); ul.appendChild(li); });
             list.appendChild(ul);
         }
         container.appendChild(list);
     };
 
-    // Krankenhaus
     CONFIG.modules['Krankenhaus'] = (container) => {
         const box = document.createElement('div');
         box.innerHTML = '<strong>Krankenhaus-Status:</strong>';
@@ -54,7 +46,6 @@
         container.appendChild(box);
     };
 
-    // Fahrzeuge
     CONFIG.modules['Fahrzeuge'] = (container) => {
         const box = document.createElement('div');
         box.innerHTML = '<strong>Fahrzeug-Status:</strong>';
@@ -167,7 +158,8 @@
         tabsContainer.appendChild(appstoreTab);
 
         Object.keys(CONFIG.modules).forEach(modName => {
-            if (GM_getValue(`module_${modName}`, true)) {
+            const enabled = localStorage.getItem(`module_${modName}`) !== 'false'; // default true
+            if (enabled) {
                 const tab = document.createElement('div');
                 tab.textContent = modName;
                 tab.style.padding = '5px 10px';
@@ -190,9 +182,10 @@
             label.style.marginBottom = '3px';
             const checkbox = document.createElement('input');
             checkbox.type = 'checkbox';
-            checkbox.checked = GM_getValue(`module_${modName}`, true);
+            const enabled = localStorage.getItem(`module_${modName}`) !== 'false'; 
+            checkbox.checked = enabled;
             checkbox.addEventListener('change', e => {
-                GM_setValue(`module_${modName}`, e.target.checked);
+                localStorage.setItem(`module_${modName}`, e.target.checked);
                 renderTabsAndContent();
             });
             label.appendChild(checkbox);
@@ -240,7 +233,7 @@
     };
 
     const main = () => {
-        log('LSSTools Modules geladen!');
+        log('LSSTools Modules geladen (localStorage Version)!');
         addCustomPopupLink();
     };
 
