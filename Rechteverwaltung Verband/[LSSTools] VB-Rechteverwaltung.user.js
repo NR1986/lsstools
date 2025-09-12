@@ -1,10 +1,11 @@
 // ==UserScript==
 // @name         [LSSTools] Verband Rechteverwalter
 // @namespace    https://leitstellenspiel.de/
-// @version      0.8
+// @version      0.9
 // @description  Zeigt die Rechte-Buttons direkt bei den Mitgliedern an (ohne "Rechte bearbeiten" klicken zu müssen)
 // @author       NinoRossi
 // @match        https://www.leitstellenspiel.de/verband/mitglieder/*
+// @icon         https://www.google.com/s2/favicons?sz=64&domain=leitstellenspiel.de
 // @grant        none
 // ==/UserScript==
 
