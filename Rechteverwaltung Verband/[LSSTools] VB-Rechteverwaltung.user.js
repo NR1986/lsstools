@@ -1,10 +1,11 @@
 // ==UserScript==
 // @name         [LSSTools] Verband Rechteverwalter
 // @namespace    https://leitstellenspiel.de/
-// @version      0.9.1
+// @version      0.9.2
 // @description  Zeigt die Rechte-Buttons direkt bei den Mitgliedern an (ohne "Rechte bearbeiten" klicken zu müssen)
 // @author       NinoRossi
 // @match        https://www.leitstellenspiel.de/verband/mitglieder*
+// @match        https://www.leitstellenspiel.de/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=leitstellenspiel.de
 // @grant        none
 // ==/UserScript==
@@ -51,48 +52,33 @@
         document.querySelectorAll("a.btn_edit_rights[user_id]").forEach(editBtn => {
             const userId = editBtn.getAttribute("user_id");
             const parentTd = editBtn.parentNode;
-
-            // Rechte-Div finden (Classic oder LSSMV4)
             let rightsDiv = document.querySelector(`#rights_${userId}`);
             if (!rightsDiv && editBtn.nextElementSibling && editBtn.nextElementSibling.querySelector("a.btn")) {
                 rightsDiv = editBtn.nextElementSibling;
             }
             if (!rightsDiv) rightsDiv = parentTd.querySelector("div");
-
             if (!rightsDiv) return;
-
-            // Original-Button entfernen
-            editBtn.remove();
-
-            // Wrapper nur einmal hinzufügen
+            editBtn.remove();            
             if (!parentTd.querySelector("div[data-rights-cloned]")) {
                 const wrapper = document.createElement("div");
                 wrapper.setAttribute("data-rights-cloned", "1");
                 wrapper.style.marginTop = "5px";
-
                 rightsDiv.querySelectorAll("a.btn").forEach(origBtn => {
                     const text = origBtn.textContent.trim();
                     if (text && text !== "Schließen") {
-                        // Text und Farbe anpassen
                         if (buttonMapping[text]) {
                             origBtn.textContent = buttonMapping[text].text;
-                            if (buttonMapping[text].class) {
-                                origBtn.className = `btn btn-xs ${buttonMapping[text].class}`;
-                            }
+                            if (buttonMapping[text].class) {origBtn.className = `btn btn-xs ${buttonMapping[text].class}`;}
                         }
-
-                        // Spezialfall LGM + 100%
                         if (text === "Als Lehrgangsmeister setzen") {
                             origBtn.addEventListener("click", e => {
                                 e.preventDefault();
-                                // fetch LGM + 100% Rabatt
                                 fetch(`/verband/schooling/${userId}/1`, { method: "GET", credentials: "include" })
                                     .then(() => fetch(`/verband/discount/${userId}/10`, { method: "GET", credentials: "include" }))
                                     .then(() => location.reload())
                                     .catch(err => console.error(err));
                             });
                         }
-                        // Spezialfall LGM entfernen + 0% Rabatt
                         if (text === "Als Lehrgangsmeister entfernen") {
                             origBtn.addEventListener("click", e => {
                                 e.preventDefault();
@@ -102,23 +88,24 @@
                                     .catch(err => console.error(err));
                             });
                         }
-
-
-                        // Button in Wrapper verschieben (statt neu erstellen)
                         wrapper.appendChild(origBtn);
                     }
                 });
-
+                const copyBtn = document.createElement("button");
+                copyBtn.textContent = "UserID";
+                copyBtn.className = "btn btn-xs btn-secondary btn-info";
+                copyBtn.style.marginRight = "4px";
+                copyBtn.addEventListener("click", () => {
+                    navigator.clipboard.writeText(userId)
+                        .then(() => console.log(`UserID ${userId} kopiert`))
+                        .catch(err => console.error("Kopieren fehlgeschlagen:", err));
+                });
+                wrapper.appendChild(copyBtn);
                 parentTd.appendChild(wrapper);
             }
         });
     }
-
-    // Direkt beim Laden
     processButtons();
-
-    // MutationObserver für nachgeladene Buttons durch Vue.js
     const observer = new MutationObserver(() => processButtons());
     observer.observe(document.body, { childList: true, subtree: true });
-
 })();
