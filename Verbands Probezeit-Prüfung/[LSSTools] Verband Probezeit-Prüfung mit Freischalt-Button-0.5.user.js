@@ -3,7 +3,7 @@
 // @namespace    https://www.leitstellenspiel.de/
 // @version      0.5
 // @description  Prüft automatisch die Probezeit eines Nutzers und zeigt einen Button an, um ihn manuell freizuschalten
-// @author       Dein Name
+// @author       NinoRossi
 // @match        https://www.leitstellenspiel.de/*
 // @grant        none
 // ==/UserScript==
